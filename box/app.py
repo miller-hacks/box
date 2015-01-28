@@ -4,19 +4,37 @@ from tornado.ioloop import IOLoop
 import tornado.web
 import os
 from tornado.options import options
-from handlers import MainHandler, ApiHandler
+from handlers import MainHandler, GameHandler
+
+
+class State(object):
+
+    def __init__(self):
+        self._state = {
+            "games": {}
+        }
+
+    def add_game(self, game):
+        self._state["games"][game.code] = game
+
+    def remove_game(self, game):
+        if game.code in self._state["games"]:
+            del self._state["games"][game.code]
+
+    def get_game(self, code):
+        return self._state["games"].get(code)
 
 
 class Application(tornado.web.Application):
+
     def __init__(self):
         handlers = [
             (r"/", MainHandler),
-            (r"/api", ApiHandler),
+            (r"/game/([^/]+)/", GameHandler),
         ]
-        settings = dict(
-            cookie_secret=os.environ.get("BOX_COOKIE_SECRET", "secret"),
-        )
+        settings = {}
         tornado.web.Application.__init__(self, handlers, **settings)
+        self.state = State()
 
 
 def run():

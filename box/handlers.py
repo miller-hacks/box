@@ -9,11 +9,18 @@ class MainHandler(tornado.web.RequestHandler):
         self.write("I work, baby!")
 
 
-class ApiHandler(tornado.web.RequestHandler):
+class GameHandler(tornado.web.RequestHandler):
 
     def __init__(self, *args, **kwargs):
-        super(ApiHandler, self).__init__(*args, **kwargs)
+        super(GameHandler, self).__init__(*args, **kwargs)
         self.set_header('Content-Type', 'application/json; charset="utf-8"')
 
-    def get(self):
-        self.write(json.dumps({}))
+    def get(self, code):
+        game = self.application.state.get_game(code)
+        if not game:
+            self.set_status(404)
+            self.finish(json.dumps({}))
+        else:
+            self.finish(json.dumps({
+                "players": [x.name for x in game.players]
+            }))

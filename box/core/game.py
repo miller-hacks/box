@@ -8,6 +8,8 @@ def generate_game_code(length=4):
 
 class Game(object):
 
+    NAME = "base"
+
     STAGE_NEW = 0
     STAGE_RUNNING = 1
     STAGE_FINISHED = 2
@@ -61,3 +63,20 @@ class Game(object):
             self.current_round.run()
 
         self.to_finished()
+
+
+class SolveGame(Game):
+    """
+    Simple game - the goal of each player is solving examples.
+    Given an example such as "2 + 2 = ?" player must submit an
+    answer. The faster player submits an answer the more points
+    player receive.
+    """
+
+    NAME = "solve"
+
+    EXAMPLES = (
+        ("2 + 2 = ?", "4"),
+        ("3 * 2 = ?", "6"),
+        ("4 + 3 = ?", "7")
+    )
