@@ -45,3 +45,14 @@ class GameHandler(tornado.web.RequestHandler):
                     "name": player.name
                 }
             }))
+
+
+class StatsHandler(tornado.web.RequestHandler):
+
+    def __init__(self, *args, **kwargs):
+        super(StatsHandler, self).__init__(*args, **kwargs)
+        self.set_header('Content-Type', 'application/json; charset="utf-8"')
+
+    def get(self):
+        app_state = self.application.state.get_stats()
+        self.finish(json.dumps(app_state))
