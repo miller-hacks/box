@@ -17,6 +17,7 @@ class State(object):
 
     def new_game(self):
         game = SolveGame()
+        game.get_next_round()
         self.add_game(game)
         return game
 
@@ -34,17 +35,8 @@ class State(object):
         stats = {
             "games": []
         }
-        for game_code, game in self._state["games"].items():
-            game_stats = {
-                "players": [],
-                "code": game.code
-            }
-            for player in game.players:
-                game_stats["players"].append({
-                    "uid": player.uid,
-                    "name": player.name
-                })
-            stats["games"].append(game_stats)
+        for _, game in self._state["games"].items():
+            stats["games"].append(game.get_stats())
         return stats
 
 

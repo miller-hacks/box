@@ -79,6 +79,20 @@ class Game(object):
     def set_player_state(self, player, data):
         pass
 
+    def get_stats(self):
+        stats = {
+            "players": [],
+            "code": self.code,
+            "current_round": self.current_round.get_render_data() if self.current_round else None
+        }
+        for player in self.players:
+            stats["players"].append({
+                "uid": player.uid,
+                "name": player.name
+            })
+        stats["players_count"] = len(stats["players"])
+        return stats
+
 
 class SolveGame(Game):
     """
