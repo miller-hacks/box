@@ -13,10 +13,7 @@ class Player(object):
         self.uid = uuid.uuid4().hex
         self.name = name or generate_player_name()
         self.score = 0
+        self.state = {}
 
-    def add_points(self, points):
-        self.score += points
-
-    def remove_points(self, points):
-        self.score -= points
-
+    def set_state(self, data):
+        self.state.update(data)
