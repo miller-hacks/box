@@ -23,9 +23,9 @@ class Game(object):
         self.players = players or []
         self.current_stage = self.STAGE_NEW
         self.current_round = None
-        self.game_state = self.get_initial_game_state()
+        self.state = self.get_initial_state()
 
-    def get_initial_game_state(self):
+    def get_initial_state(self):
         return {}
 
     def is_new(self):
@@ -72,21 +72,6 @@ class Game(object):
 
     def get_next_round(self):
         raise NotImplementedError()
-
-    def run(self):
-        if not self.is_new():
-            return
-
-        self.to_running()
-
-        while True:
-            try:
-                self.current_round = self.rounds.pop(0)
-            except IndexError:
-                break
-            self.current_round.run()
-
-        self.to_finished()
 
     def set_state(self, data):
         pass
