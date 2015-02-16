@@ -35,9 +35,11 @@ class State(object):
             "games": []
         }
         for game_code, game in self._state["games"].items():
+            current_round_stats = game.current_round.get_render_data() if game.current_round else None
             game_stats = {
                 "players": [],
-                "code": game.code
+                "code": game.code,
+                "current_round": current_round_stats
             }
             for player in game.players:
                 game_stats["players"].append({
