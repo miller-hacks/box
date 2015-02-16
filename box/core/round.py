@@ -1,5 +1,7 @@
 # coding: utf-8
 import uuid
+from tornado.ioloop import IOLoop
+import time
 
 
 class Round(object):
@@ -41,10 +43,8 @@ class Round(object):
 class CollectPlayersRound(Round):
 
     def data_received(self, player, data):
-        if data["action"] == 'start':
-            self.game.set_player_state(player, {"ready": True})
-        elif data["action"] == 'name':
-            self.game.set_player_state(player, {"name": data["payload"]})
+        if data["action"] == 'ready':
+            self.game.get_next_round()
 
     def get_state_data(self):
         return {
@@ -54,6 +54,12 @@ class CollectPlayersRound(Round):
 
 class SolveExampleRound(Round):
 
+    def run(self):
+        self.finish = IOLoop.current().add_timeout(time.time() + 20, self.on_finish)
+
+    def on_finish(self):
+        self.game.get_next_round()
+
     def data_received(self, player, data):
         if data["action"] == 'answer':
             current_score = player.state.get("score", 0)
@@ -61,7 +67,7 @@ class SolveExampleRound(Round):
             if self.props["answer"] == data["payload"]:
                 new_score = current_score + 10
             else:
-                new_score = current_score - 1
+                new_score = current_score - 5
 
             self.game.set_player_state(player, {"score": new_score})
 

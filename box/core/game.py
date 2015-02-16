@@ -12,44 +12,19 @@ class Game(object):
 
     NAME = "base"
 
-    STAGE_NEW = 0
-    STAGE_RUNNING = 1
-    STAGE_FINISHED = 2
-
     def __init__(self, code=None, rounds=None, players=None):
         self.uid = uuid.uuid4().hex
         self.code = code or generate_game_code()
         self.rounds = rounds or []
         self.players = players or []
-        self.current_stage = self.STAGE_NEW
         self.current_round = None
         self.state = self.get_initial_state()
 
     def get_initial_state(self):
         return {}
 
-    def is_new(self):
-        return self.current_stage == self.STAGE_NEW
-
-    def is_running(self):
-        return self.current_stage == self.STAGE_RUNNING
-
-    def is_finished(self):
-        return self.current_stage == self.STAGE_FINISHED
-
-    def to_new(self):
-        self.current_stage = self.STAGE_NEW
-
-    def to_running(self):
-        self.current_stage = self.STAGE_RUNNING
-
-    def to_finished(self):
-        self.current_stage = self.STAGE_FINISHED
-
     def get_player(self, uid):
         if not uid:
-            if not self.is_new():
-                return None
             player = Player()
             self.add_player(player)
         else:
@@ -113,16 +88,19 @@ class SolveGame(Game):
     def set_player_state(self, player, data):
         player.set_state(data)
 
+    # noinspection PyTypeChecker
     def get_next_round(self):
-        if self.is_new():
-            self.current_round = CollectPlayersRound(self)
-            self.rounds = [
-                SolveExampleRound(self, props={"example": x[0], "answer": x[1]}) for x in self.EXAMPLES
-            ]
-        else:
-            try:
-                self.current_round = self.rounds.pop(0)
-            except IndexError:
-                self.current_round = FinalRound(self)
+        if not self.rounds:
+            self.rounds = [CollectPlayersRound(self)]
+            for example in self.EXAMPLES:
+                self.rounds.append(
+                    SolveExampleRound(self, props={"example": example[0], "answer": example[1]})
+                )
+            self.rounds.append(FinalRound(self))
+        try:
+            self.current_round = self.rounds.pop(0)
+        except IndexError:
+            raise Exception("This should not be reached")
 
+        self.current_round.run()
         return self.current_round

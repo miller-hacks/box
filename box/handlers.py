@@ -41,6 +41,9 @@ class GameHandler(BaseJsonResponseHandler):
             uid = self.get_argument("uid", None)
             player = game.get_player(uid)
 
+            action = self.get_argument("action", None)
+            game.current_round.data_received(player, {"action": action})
+
             self.finish(json.dumps({
                 "players": [x.name for x in game.players],
                 "me": {
