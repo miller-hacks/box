@@ -3,17 +3,25 @@ import tornado.web
 import json
 
 
+class BaseJsonResponseHandler(tornado.web.RequestHandler):
+
+    def __init__(self, *args, **kwargs):
+        super(BaseJsonResponseHandler, self).__init__(*args, **kwargs)
+        self.set_header('Content-Type', 'application/json; charset="utf-8"')
+
+
 class MainHandler(tornado.web.RequestHandler):
 
     def get(self):
-        self.write("I work, baby!")
+        self.set_header('Content-Type', 'text/html; charset="utf-8"')
+        self.write("""
+            <a href="/new/">new game</a><br />
+            <a href="/game/qqqq/">game</a><br />
+            <a href="/stats/">stats</a>
+        """)
 
 
-class NewGameHandler(tornado.web.RequestHandler):
-
-    def __init__(self, *args, **kwargs):
-        super(NewGameHandler, self).__init__(*args, **kwargs)
-        self.set_header('Content-Type', 'application/json; charset="utf-8"')
+class NewGameHandler(BaseJsonResponseHandler):
 
     def get(self):
         game = self.application.state.new_game()
@@ -22,19 +30,14 @@ class NewGameHandler(tornado.web.RequestHandler):
         }))
 
 
-class GameHandler(tornado.web.RequestHandler):
-
-    def __init__(self, *args, **kwargs):
-        super(GameHandler, self).__init__(*args, **kwargs)
-        self.set_header('Content-Type', 'application/json; charset="utf-8"')
+class GameHandler(BaseJsonResponseHandler):
 
     def get(self, code):
         game = self.application.state.get_game(code)
         if not game:
             self.set_status(404)
-            self.finish(json.dumps({}))
+            self.finish(json.dumps({"error": "game not found"}))
         else:
-
             uid = self.get_argument("uid", None)
             player = game.get_player(uid)
 
@@ -47,11 +50,7 @@ class GameHandler(tornado.web.RequestHandler):
             }))
 
 
-class StatsHandler(tornado.web.RequestHandler):
-
-    def __init__(self, *args, **kwargs):
-        super(StatsHandler, self).__init__(*args, **kwargs)
-        self.set_header('Content-Type', 'application/json; charset="utf-8"')
+class StatsHandler(BaseJsonResponseHandler):
 
     def get(self):
         app_state = self.application.state.get_stats()

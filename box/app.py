@@ -17,6 +17,7 @@ class State(object):
 
     def new_game(self):
         game = SolveGame()
+        game.get_next_round()
         self.add_game(game)
         return game
 
@@ -34,6 +35,7 @@ class State(object):
         stats = {
             "games": []
         }
+<<<<<<< HEAD
         for game_code, game in self._state["games"].items():
             current_round_stats = game.current_round.get_render_data() if game.current_round else None
             game_stats = {
@@ -47,6 +49,10 @@ class State(object):
                     "name": player.name
                 })
             stats["games"].append(game_stats)
+=======
+        for _, game in self._state["games"].items():
+            stats["games"].append(game.get_stats())
+>>>>>>> 36516d01c808145a4882dba61266a8ccfe214259
         return stats
 
 
